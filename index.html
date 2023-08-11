@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task manager</title>
+  <!-- main style sheet -->
+  <!-- <link rel="stylesheet" href="../../css/style.css"> -->
+  <link rel="stylesheet" href="./style.css">
+  <!-- responsive css -->
+  <!-- <link rel="stylesheet" href="../../css/responsive.css"> -->
+  <!-- main JavaScript file -->
+  <!-- <script type="module" src="../../js/main.js" defer></script> -->
+  <!-- tip-calculator js -->
+  <script type="module" src="./script.js" defer></script>
+  <!-- <script type="module" src="./dashboard.js" defer></script> -->
+  <!-- tailwind css -->
+  <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+  <!-- font awesome cdn link -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- iconscout -->
+  <!-- <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"> -->
+  <!-- <link rel="stylesheet" href="https://cdn.iconscout.com/iconscout-unicons-1.0.0/css/unicons.min.css"> -->
+</head>
+
+<body>
+  <!-- Project code -->
+  <main id="app" class="flex mt-28" data-project-name="calculator">
+    <!-- <h1>Calculator</h1> -->
+    <!-- calculator side bar -->
+    <div id="calc-side-bar">
+      <h2>Calculator</h2>
+      <ul class="menu-items">
+        <li class="menu-item flex items-center gap-4 active" id="standard">
+          <i class="fa-solid fa-calculator"></i>
+          <!-- <i class="uim uim-calculator"></i> -->
+          <span>Standard</span>
+        </li>
+        <li class="menu-item flex items-center gap-4" id="date-calculation">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Date calculation</span>
+        </li>
+        <li class="menu-item flex items-center gap-4" id="currency">
+          <i class="fa-brands fa-gg-circle"></i>
+          <span>currency</span>
+        </li>
+        <li class="menu-item flex items-center gap-4" id="volume">
+          <i class="fa-solid fa-ruler-vertical"></i>
+          <span>Length</span>
+        </li>
+        <li class="menu-item flex items-center gap-4" id="temperature">
+          <i class="fa-solid fa-temperature-three-quarters"></i>
+          <span>Temperature</span>
+        </li>
+      </ul>
+    </div>
+    <div id="calc-main-content">
+      <div class="calculator flex">
+        <div id="calculation-tab">
+          <div id="calc-top-bar" class="flex items-center">
+            <div id="side-bar-menu-btn">
+              <i class="fa-solid fa-bars"></i>
+            </div>
+            <h1>Standard</h1>
+            <button type="button" title="history" id="history-tab-btn" class="toggle-history-tab">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+          </div>
+          <section id="calc-section">
+            <div id="result-area" class="flex">
+              <p class="prev-equation"></p>
+              <div class="clac-equation">0</div>
+            </div>
+            <div id="calc-btns">
+              <table>
+                <tbody class="flex">
+                  <tr class="flex ">
+                    <td class="calc-symbol" data-value="%"><i class="fa-solid fa-percent"></i></td>
+                    <td class="calc-symbol" data-value="ce"><i class="fa-solid fa-c"></i>&ThinSpace;<i
+                        class="fa-solid fa-e"></i></td>
+                    <td class="calc-symbol" data-value="clear"><i class="fa-solid fa-c"></i></td>
+                    <td class="calc-symbol" id="backspace" data-value="backspace"><i
+                        class="fa-solid fa-delete-left"></i></td>
+                  </tr>
+                  <tr class="flex ">
+                    <td class="calc-symbol" data-value="1/x">1/x</td>
+                    <td class="calc-symbol" data-value="xSquare">x<sup>2</sup></td>
+                    <td class="calc-symbol" data-value="rootX"><i class="fa-solid fa-square-root-variable"></i></td>
+                    <td class="calc-symbol" data-value="/"><i class="fa-solid fa-divide"></i></td>
+                  </tr>
+                  <tr class="flex ">
+                    <td class="num" data-value="7"><i class="fa-solid fa-7"></i></td>
+                    <td class="num" data-value="8"><i class="fa-solid fa-8"></i></td>
+                    <td class="num" data-value="9"><i class="fa-solid fa-9"></i></td>
+                    <td class="calc-symbol" data-value="*"><i class="fa-solid fa-xmark"></i></td>
+                  </tr>
+                  <tr class="flex ">
+                    <td class="num" data-value="4"><i class="fa-solid fa-4"></i></td>
+                    <td class="num" data-value="5"><i class="fa-solid fa-5"></i></td>
+                    <td class="num" data-value="6"><i class="fa-solid fa-6"></i></td>
+                    <td class="calc-symbol" data-value="-"><i class="fa-solid fa-minus"></i></td>
+                  </tr>
+                  <tr class="flex ">
+                    <td class="num" data-value="1"><i class="fa-solid fa-1"></i></td>
+                    <td class="num" data-value="2"><i class="fa-solid fa-2"></i></td>
+                    <td class="num" data-value="3"><i class="fa-solid fa-3"></i></td>
+                    <td class="calc-symbol" data-value="+"><i class="fa-solid fa-plus"></i></td>
+                  </tr>
+                  <tr class="flex ">
+                    <td class="num" data-value="plus-minus"><i class="fa-solid fa-plus-minus"></i></td>
+                    <td class="num" data-value="0"><i class="fa-solid fa-0"></i></td>
+                    <td class="num" data-value="."><i class="fa-solid fa-circle"></i></td>
+                    <td class="calc-symbol" data-value="=" id="equal"><i class="fa-solid fa-equals"></i></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+        <div id="history-tab">
+          <div class="history-tab-top">
+            <h3>History</h3>
+            <button type="button" title="hide history tab" class="toggle-history-tab">
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+          <ul class="prev-calculations">
+            <li class="prev-calculation flex">
+              <p class="his-message">There's no history yet.</p>
+            </li>
+          </ul>
+          <button type="button" title="clear all" id="clear-all-calculations">
+            <i class="fa-solid fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+
+</html>
