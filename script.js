@@ -102,6 +102,7 @@ function showPrevCalculationsOnHisTab() {
     </div>
     `;
 
+    // get individual previous calculation from history tab on double click
     prevCalculation.ondblclick = () => {
       reverseFromHistoryTab(calculation);
       const ctrlMenuElem = document.querySelector(".ctrl-menus");
@@ -109,6 +110,8 @@ function showPrevCalculationsOnHisTab() {
         ctrlMenuElem.remove();
       }
     };
+
+    // show copy and delete option on right click on individual calculation
     prevCalculation.oncontextmenu = (e) => {
       e.preventDefault();
       const ctrlMenuElem = document.querySelector(".ctrl-menus");
@@ -133,8 +136,9 @@ function showPrevCalculationsOnHisTab() {
       ul.style.top = y + "px";
       prevCalculation.insertAdjacentElement("beforeend", ul);
 
+      // copy and delete function on click
       Array.from(ul.children).forEach((menu) => {
-        menu.addEventListener("click", (e) => {
+        menu.addEventListener("click", () => {
           if (menu.dataset.btnType === "copy") {
             const selectElem = prevCalculation.querySelector(".that-result");
             // Create a range and select the text within the source div
@@ -162,6 +166,8 @@ function showPrevCalculationsOnHisTab() {
         ul.remove();
       }, 2000);
     };
+
+    // remove ctrl menus click on individual calculation
     prevCalculation.onclick = () => {
       const ctrlMenuElem = document.querySelector(".ctrl-menus");
       if (ctrlMenuElem) {
@@ -173,7 +179,9 @@ function showPrevCalculationsOnHisTab() {
   }
 }
 
-const updatePrevCalculation = (expression, result) => {
+// get time obj
+const getTimeObj = () => {
+  let obj = {};
   const time = new Date();
   const monthsList = [
     "Jan",
@@ -189,20 +197,28 @@ const updatePrevCalculation = (expression, result) => {
     "Nov",
     "Dec",
   ];
-  let obj = {};
-  obj.id = `calculation_${prevCalculations.length + 1}`;
-  obj.expression = expression;
-  obj.result = result;
   obj.time = `${
     time.getHours() > 12 ? time.getHours() - 12 : time.getHours()
   } : ${time.getMinutes()} ${time.getHours >= 12 ? "am" : "pm"}`;
   obj.date = `${time.getDate()} ${
     monthsList[time.getMonth()]
   }, ${time.getFullYear()}`;
+  return obj;
+};
+
+// update previous calculations list after doing calculation
+const updatePrevCalculation = (expression, result) => {
+  const timeObj = getTimeObj();
+  let obj = {};
+  obj = { ...timeObj };
+  obj.id = `calculation_${prevCalculations.length + 1}`;
+  obj.expression = expression;
+  obj.result = result;
   prevCalculations.push(obj);
   showPrevCalculationsOnHisTab();
 };
 
+// clear all previous calculations
 const clearAllHistory = () => {
   prevCalculations = [];
   showPrevCalculationsOnHisTab();
@@ -215,11 +231,26 @@ clearHistoryBtn.addEventListener("click", clearAllHistory);
 
 // reverse from prevExpressionArr to expressionArr
 PrevExpressionElem.addEventListener("dblclick", () => {
-  expressionArr = prevExpressionArr;
+  if (prevExpressionArr[0] === "sqrt(") {
+    expressionArr = prevExpressionArr.slice(1, prevExpressionArr.length - 1);
+  } else {
+    expressionArr = prevExpressionArr;
+  }
   prevExpressionArr = [];
   showExpressionOnscreen();
 });
 
+// evaluate expression and update previous calculations list
+const evalAndUpdatePrevCalc = () => {
+  let evaluatedExpression = getEvaluatedExpression();
+  updatePrevCalculation(prevExpressionArr, evaluatedExpression);
+  expressionArr = [];
+  for (let elem of String(evaluatedExpression)) {
+    expressionArr.push(elem);
+  }
+};
+
+// update express array after click on calculator buttons
 const updateExpressionArr = (value) => {
   expressionElem.innerHTML = "";
   if (value === "clear") {
@@ -227,8 +258,48 @@ const updateExpressionArr = (value) => {
     prevExpressionArr = [];
   } else if (value === "ce") {
     expressionArr = [];
-  } else if (value === "1/x" || value === "xSquare" || value === "rootX") {
-    console.log("nothing to eval");
+  } else if (value === "1/x") {
+    if (expressionArr.length) {
+      expressionArr = ["1", "/", "(", ...expressionArr, ")"];
+      evalAndUpdatePrevCalc();
+    }
+  } else if (value === "xSquare") {
+    if (expressionArr.length) {
+      expressionArr = [
+        "(",
+        ...expressionArr,
+        ")",
+        "*",
+        "(",
+        ...expressionArr,
+        ")",
+      ];
+      evalAndUpdatePrevCalc();
+    }
+  } else if (value === "rootX") {
+    if (expressionArr.length) {
+      let nums = "";
+      for (let num of expressionArr) {
+        nums += num;
+      }
+      let cal = Math.sqrt(+nums);
+      prevExpressionArr = ["sqrt(", ...expressionArr, ")"];
+      expressionArr = [cal];
+      let timeObj = getTimeObj();
+      prevCalculations = [
+        { expression: prevExpressionArr, result: expressionArr, ...timeObj },
+        ...prevCalculations,
+      ];
+      showPrevCalculationsOnHisTab();
+    }
+  } else if (value === "plus-minus") {
+    if (expressionArr[0] === "-(" || expressionArr[0] === "-") {
+      expressionArr.shift();
+      // expressionArr = [...expressionArr];
+    } else {
+      expressionArr = ["-(", ...expressionArr];
+    }
+    console.log(expressionArr);
   } else if (value === "backspace") {
     expressionArr.pop();
   } else if (
@@ -250,13 +321,15 @@ const updateExpressionArr = (value) => {
       expressionArr.push(value);
     }
   } else if (value === "=") {
-    // let evaluatedExpression = Math.round(getEvaluatedExpression());
-    let evaluatedExpression = getEvaluatedExpression();
-    updatePrevCalculation(prevExpressionArr, evaluatedExpression);
-    expressionArr = [];
-    for (let elem of String(evaluatedExpression)) {
-      expressionArr.push(elem);
+    if (!expressionArr.length) return;
+    if (expressionArr[0] === "-(") {
+      expressionArr[expressionArr.length] = ")";
+    } else {
+      if (expressionArr[expressionArr.length - 1] === ")") {
+        expressionArr.pop();
+      }
     }
+    evalAndUpdatePrevCalc();
   } else {
     expressionArr.push(value);
   }
