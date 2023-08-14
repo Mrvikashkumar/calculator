@@ -202,12 +202,6 @@ td i {
 }
 
 
-
-td:hover {
-  transform: scale(.9);
-}
-
-
 .fa-circle {
   font-size: .3rem;
 }
@@ -420,5 +414,24 @@ td:hover {
 
   #history-tab.toggle-history-tab {
     transform: translateX(0);
+  }
+}
+
+/* click effect */
+.click-effect {
+  animation: clickEffect .5s forwards alternate;
+}
+
+@keyframes clickEffect {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(.8);
+  }
+
+  100% {
+    transform: scale(1);
   }
 }
