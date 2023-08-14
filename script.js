@@ -13,6 +13,15 @@ let expressionArr = [];
 let prevExpressionArr = [];
 let prevCalculations = [];
 
+// click effect for buttons
+const applyClickEffect = (btn) => {
+  btn.classList.add("click-effect");
+
+  setTimeout(() => {
+    btn.classList.remove("click-effect");
+  }, 500);
+};
+
 const getExpression = (expressionArr) => {
   let expressionHTML = "";
   for (let elem of expressionArr) {
@@ -77,6 +86,13 @@ const reverseFromHistoryTab = ({ expression, result }) => {
   showExpressionOnscreen();
 };
 
+let animDelay = 0;
+const applyDeleteCalculationAnim = (elem) => {
+  elem.classList.add("show-anim-on-clear");
+  elem.style.animationDelay = animDelay + "s";
+  animDelay += 0.2;
+};
+
 const deleteIndividualCalculation = ({ id }) => {
   const newPreCalculations = prevCalculations.filter(
     (calculation) => calculation.id !== id
@@ -91,6 +107,7 @@ function showPrevCalculationsOnHisTab() {
   for (let calculation of prevCalculations.reverse()) {
     const prevCalculation = document.createElement("li");
     prevCalculation.className = "prev-calculation flex";
+    prevCalculation.setAttribute("data-id", calculation.id);
     prevCalculation.innerHTML = `
     <div>
       <p class="expression">${getExpression(calculation.expression)}</p>
@@ -109,6 +126,10 @@ function showPrevCalculationsOnHisTab() {
       if (ctrlMenuElem) {
         ctrlMenuElem.remove();
       }
+      applyClickEffect(prevCalculation);
+      setTimeout(() => {
+        toggleHistoryTab();
+      }, 500);
     };
 
     // show copy and delete option on right click on individual calculation
@@ -132,7 +153,8 @@ function showPrevCalculationsOnHisTab() {
       `;
       let x = e.offsetX,
         y = e.offsetY;
-      ul.style.left = x + "px";
+      let xDistance = prevCalculation.clientWidth - x >= 90;
+      ul.style.left = (xDistance ? x : x - 90) + "px";
       ul.style.top = y + "px";
       prevCalculation.insertAdjacentElement("beforeend", ul);
 
@@ -149,7 +171,6 @@ function showPrevCalculationsOnHisTab() {
             // Copy the selected text to the clipboard
             try {
               document.execCommand("copy");
-              console.log("Text copied to clipboard");
             } catch (err) {
               console.error("Failed to copy text:", err);
             }
@@ -157,7 +178,11 @@ function showPrevCalculationsOnHisTab() {
             // Clear the selection
             window.getSelection().removeAllRanges();
           } else {
-            deleteIndividualCalculation(calculation);
+            applyDeleteCalculationAnim(prevCalculation);
+            setTimeout(() => {
+              deleteIndividualCalculation(calculation);
+              animDelay = 0;
+            }, animDelay * 1000);
           }
         });
       });
@@ -223,11 +248,25 @@ const clearAllHistory = () => {
   prevCalculations = [];
   showPrevCalculationsOnHisTab();
   prevCalculationsElem.innerHTML = `
-  <li class="prev-calculation flex">
+  <li class="flex">
     <p class="his-message">There's no history yet.</p>
   </li>`;
+  setTimeout(() => {
+    toggleHistoryTab();
+  }, 500);
 };
-clearHistoryBtn.addEventListener("click", clearAllHistory);
+clearHistoryBtn.addEventListener("click", () => {
+  const prevCalculationsList =
+    prevCalculationsElem.querySelectorAll(".prev-calculation");
+  for (let prevCalculationItem of Array.from(prevCalculationsList)) {
+    applyDeleteCalculationAnim(prevCalculationItem);
+  }
+  setTimeout(() => {
+    clearAllHistory();
+    animDelay = 0;
+  }, animDelay * 1000);
+  applyClickEffect(clearHistoryBtn);
+});
 
 // reverse from prevExpressionArr to expressionArr
 PrevExpressionElem.addEventListener("dblclick", () => {
@@ -287,7 +326,12 @@ const updateExpressionArr = (value) => {
       expressionArr = [cal];
       let timeObj = getTimeObj();
       prevCalculations = [
-        { expression: prevExpressionArr, result: expressionArr, ...timeObj },
+        {
+          expression: prevExpressionArr,
+          result: expressionArr,
+          ...timeObj,
+          id: `calculation_${prevCalculations.length + 1}`,
+        },
         ...prevCalculations,
       ];
       showPrevCalculationsOnHisTab();
@@ -299,7 +343,6 @@ const updateExpressionArr = (value) => {
     } else {
       expressionArr = ["-(", ...expressionArr];
     }
-    console.log(expressionArr);
   } else if (value === "backspace") {
     expressionArr.pop();
   } else if (
@@ -340,7 +383,27 @@ calcBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => {
     let btnValue = e.currentTarget.dataset.value;
     updateExpressionArr(btnValue);
+    applyClickEffect(btn);
+
+    const audio = new Audio("click-sound.mp3");
+    audio.play();
   });
+});
+
+// expressionElem
+expressionElem.addEventListener("click", (e) => {
+  if (e.target.tagName !== "SPAN") return;
+  const input = document.createElement("input");
+  input.value = expressionArr.join("");
+  e.currentTarget.insertAdjacentElement("afterend", input);
+  input.focus();
+  input.oninput = () => {
+    expressionArr = [...input.value];
+    showExpressionOnscreen();
+  };
+  input.onblur = () => {
+    input.remove();
+  };
 });
 
 // toggle side bar
